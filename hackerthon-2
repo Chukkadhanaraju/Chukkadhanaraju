@@ -1,0 +1,150 @@
+//Smart Assessment Board: School teacher is planning to conduct a quiz competition on identifying states and its capitals of our country. Hence, school teacher needs a model through which teacher conducts the competition easily.
+import java.util.ArrayList;
+import java.util.Scanner;
+
+abstract class QuizQuestion {
+    String question;
+    String answer;
+
+    QuizQuestion(String question, String answer) {
+        this.question = question;
+        this.answer = answer;
+    }
+
+    abstract boolean ask();
+}
+
+class ShortAnswerQuestion extends QuizQuestion {
+
+    ShortAnswerQuestion(String question, String answer) {
+        super(question, answer);
+    }
+
+    boolean ask() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print(question + " ");
+        String userAnswer = scanner.nextLine().trim().toLowerCase();
+        return userAnswer.equals(answer.toLowerCase());
+    }
+}
+
+class MultipleChoiceQuestion extends QuizQuestion {
+    String[] options;
+
+    MultipleChoiceQuestion(String question, String[] options, String answer) {
+        super(question, answer);
+        this.options = options;
+    }
+
+    boolean ask() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println(question);
+        for (int i = 0; i < options.length; i++) {
+            System.out.println((i + 1) + ". " + options[i]);
+        }
+        System.out.print("Enter the correct option number: ");
+        int userAnswer = scanner.nextInt();
+        return options[userAnswer - 1].equalsIgnoreCase(answer);
+    }
+}
+
+class TrueFalseQuestion extends QuizQuestion {
+
+    TrueFalseQuestion(String question, String answer) {
+        super(question, answer);
+    }
+
+    boolean ask() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print(question + " (True/False) ");
+        String userAnswer = scanner.nextLine().trim().toLowerCase();
+        return userAnswer.equals(answer.toLowerCase());
+    }
+}
+
+class Quiz {
+    ArrayList<QuizQuestion> questions;
+    int score;
+
+    Quiz() {
+        questions = new ArrayList<>();
+        score = 0;
+    }
+
+    void addQuestion(QuizQuestion question) {
+        questions.add(question);
+    }
+
+    void runQuiz() {
+        for (QuizQuestion question : questions) {
+            if (question.ask()) {
+                System.out.println("Correct!");
+                score++;
+            } else {
+                System.out.println("Incorrect!");
+            }
+        }
+        System.out.println("Quiz Finished! Your Score: " + score + "/" + questions.size());
+    }
+}
+
+public class QuizApp {
+
+    public static void main(String[] args) {
+        Quiz quiz = new Quiz();
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("Welcome to the Quiz App!");
+        System.out.println("How many questions would you like to add?");
+        int questionCount = scanner.nextInt();
+        scanner.nextLine();  
+
+        for (int i = 0; i < questionCount; i++) {
+            System.out.println("Choose question type: 1. Short Answer  2. Multiple Choice  3. True/False");
+            int questionType = scanner.nextInt();
+            scanner.nextLine();
+
+            switch (questionType) {
+                case 1: 
+                    System.out.print("Enter the question: ");
+                    String shortAnswerQuestion = scanner.nextLine();
+                    System.out.print("Enter the correct answer: ");
+                    String shortAnswer = scanner.nextLine();
+                    quiz.addQuestion(new ShortAnswerQuestion(shortAnswerQuestion, shortAnswer));
+                    break;
+
+                case 2: 
+                    System.out.print("Enter the question: ");
+                    String mcQuestion = scanner.nextLine();
+                    System.out.print("Enter the number of options: ");
+                    int optionCount = scanner.nextInt();
+                    scanner.nextLine();  // Consume newline
+
+                    String[] options = new String[optionCount];
+                    for (int j = 0; j < optionCount; j++) {
+                        System.out.print("Enter option " + (j + 1) + ": ");
+                        options[j] = scanner.nextLine();
+                    }
+
+                    System.out.print("Enter the correct answer: ");
+                    String mcAnswer = scanner.nextLine();
+                    quiz.addQuestion(new MultipleChoiceQuestion(mcQuestion, options, mcAnswer));
+                    break;
+
+                case 3: 
+                    System.out.print("Enter the question: ");
+                    String tfQuestion = scanner.nextLine();
+                    System.out.print("Enter the correct answer (True/False): ");
+                    String tfAnswer = scanner.nextLine();
+                    quiz.addQuestion(new TrueFalseQuestion(tfQuestion, tfAnswer));
+                    break;
+
+                default:
+                    System.out.println("Invalid choice! Skipping question.");
+                    break;
+            }
+        }
+
+        quiz.runQuiz();
+    }
+}
